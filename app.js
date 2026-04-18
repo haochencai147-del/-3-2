@@ -5,12 +5,10 @@ function resolveApiBaseUrl() {
   const pageHost = window.location.hostname || "localhost";
   const pagePort = String(window.location.port || "");
 
-  // Use same origin API when the app is served from the backend port.
   if (pagePort === "8787") {
     return `${pageProtocol}//${pageHost}:8787`;
   }
 
-  // Default to backend service on 8787 while keeping the current host for LAN access.
   return `http://${pageHost}:8787`;
 }
 
@@ -18,7 +16,6 @@ const API_CONFIG = {
   threeStepsEndpoint: `${resolveApiBaseUrl()}/api/three-steps`
 };
 
-// Cache all frequently used DOM nodes once to avoid repeated queries later.
 const startScreen = document.getElementById("startScreen");
 const inputScreen = document.getElementById("inputScreen");
 const resultScreen = document.getElementById("resultScreen");
@@ -57,20 +54,15 @@ let ambientLfo = null;
 let ambientBusGain = null;
 let ambientFilter = null;
 
-// Motion multipliers let us speed up/slow down the whole vortex timeline from one place.
 const VORTEX_MOTION = {
-  // Increase speed to make all phases faster (e.g. 1.2), decrease for slower (e.g. 0.85).
   speed: 0.62,
-  // Drift speed controls only the endless flowing stage.
   driftSpeed: 0.48,
-  // First pull-into-vortex phase multiplier 
   firstSpinSpeed: 0.4
 };
 
 const START_SCREEN_PRETEXT =
   "Input will be *analyzed*, /aligned/, and optimized toward a common structure.";
 
-// Centralized audio bootstrap: create/reuse one AudioContext so all UI sounds share one mixer.
 function ensureAudioReady() {
   try {
     if (!audioContext) {
@@ -217,7 +209,6 @@ function startAmbientBackground() {
   }
 
   const now = ctx.currentTime;
-  // Build a low drone from multiple oscillators (simple synth pad, no external audio files).
   const chord = [110, 164.81, 220.0, 329.63];
   const waveTypes = ["triangle", "sawtooth", "triangle", "sine"];
 
@@ -264,7 +255,6 @@ function stopAmbientBackground() {
     try {
       osc.stop(now + 0.75);
     } catch (_error) {
-      // Ignore stale oscillator instances.
     }
   }
   ambientOscillators = [];
@@ -273,7 +263,6 @@ function stopAmbientBackground() {
     try {
       ambientLfo.stop(now + 0.75);
     } catch (_error) {
-      // Ignore stale LFO instances.
     }
     ambientLfo = null;
   }
@@ -304,13 +293,6 @@ function normalizeClientErrorMessage(error) {
   return raw;
 }
 
-function toSafePretextSource(text) {
-  return String(text || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 function renderPretext(target, text) {
   if (!target) {
     return;
@@ -323,19 +305,30 @@ function renderPretext(target, text) {
   }
 
   try {
-    const safeSource = toSafePretextSource(raw);
+    const safeSource = raw
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
     target.innerHTML = pretext(safeSource);
-  } catch (error) {
-    // Fallback keeps UI responsive even if the pretext parser fails at runtime.
+  } catch (_error) {
     target.textContent = raw;
   }
 }
 
-// Screen switch helpers keep navigation logic centralized.
+function setActiveScreen(targetScreen) {
+  if (startScreen) {
+    startScreen.classList.toggle("active", targetScreen === startScreen);
+  }
+  if (inputScreen) {
+    inputScreen.classList.toggle("active", targetScreen === inputScreen);
+  }
+  if (resultScreen) {
+    resultScreen.classList.toggle("active", targetScreen === resultScreen);
+  }
+}
+
 function showStartScreen() {
-  startScreen.classList.add("active");
-  inputScreen.classList.remove("active");
-  resultScreen.classList.remove("active");
+  setActiveScreen(startScreen);
 }
 
 function showInputScreen() {
@@ -350,9 +343,46 @@ function showInputScreen() {
 }
 
 function showResultScreen() {
-  startScreen.classList.remove("active");
-  inputScreen.classList.remove("active");
-  resultScreen.classList.add("active");
+  setActiveScreen(resultScreen);
+}
+
+function isFullscreenActive() {
+  return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+async function requestFullscreenMode() {
+  if (isFullscreenActive()) {
+    return;
+  }
+
+  const root = document.documentElement;
+  try {
+    if (root.requestFullscreen) {
+      await root.requestFullscreen();
+      return;
+    }
+    if (root.webkitRequestFullscreen) {
+      root.webkitRequestFullscreen();
+    }
+  } catch (_error) {
+  }
+}
+
+async function exitFullscreenMode() {
+  if (!isFullscreenActive()) {
+    return;
+  }
+
+  try {
+    if (document.exitFullscreen) {
+      await document.exitFullscreen();
+      return;
+    }
+    if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  } catch (_error) {
+  }
 }
 
 function clearExecutionTimers() {
@@ -401,7 +431,6 @@ function stopSinkCollapseAnimations() {
     try {
       motion.cancel();
     } catch (_error) {
-      // Ignore stale animation handles during teardown.
     }
   }
   sinkTokenAnimations = [];
@@ -422,7 +451,6 @@ function stopFlowRandomizer() {
     try {
       motion.cancel();
     } catch (_error) {
-      // Ignore stale animation handles during teardown.
     }
   }
   flowTokenAnimations = [];
@@ -1691,9 +1719,16 @@ const unlockAudioOnce = () => {
 window.addEventListener("pointerdown", unlockAudioOnce, { passive: true });
 window.addEventListener("keydown", unlockAudioOnce, { passive: true });
 
-enterBtn.addEventListener("click", () => {
+enterBtn.addEventListener("click", async () => {
   playUiClickSound();
+  await requestFullscreenMode();
   showInputScreen();
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    exitFullscreenMode();
+  }
 });
 
 backBtn.addEventListener("click", () => {
