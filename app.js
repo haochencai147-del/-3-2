@@ -42,6 +42,7 @@ let flowRandomizerTimer = null;
 let flowTokenAnimations = [];
 let flowTokenTimers = [];
 let sinkTokenAnimations = [];
+let executionComplete = false;
 let audioContext = null;
 let audioMasterGain = null;
 let soundUnlocked = false;
@@ -333,6 +334,13 @@ function showInputScreen() {
   inputScreen.classList.add("active");
   resultScreen.classList.remove("active");
   clearExecutionScene();
+  if (userInput) {
+    userInput.value = "";
+  }
+  lastInputText = "";
+  if (liveRewriteOutput) {
+    renderPretext(liveRewriteOutput, "");
+  }
   if (inputProgressBox) {
     inputProgressBox.classList.remove("loading");
     inputProgressLabel.textContent = "Awaiting Input..";
@@ -401,6 +409,7 @@ function clearExecutionScene() {
   clearExecutionTimers();
   stopSinkCollapseAnimations();
   stopFlowRandomizer();
+  executionComplete = false;
   resultScreen?.classList.remove("execution-fullscreen");
   if (!resultOutput) {
     return;
@@ -1438,6 +1447,14 @@ function runExecutionVerdictTimeline(sourceText, rewrittenText, variantTexts) {
     }
     playPhaseTickSound(7);
   }, at(14800));
+
+  registerExecutionTimeout(() => {
+    executionComplete = true;
+    if (statusText) {
+      statusText.textContent = "Click anywhere to return..";
+      statusText.classList.add("click-hint-pulse");
+    }
+  }, at(18000));
 }
 
 async function requestRewriteText(text, signal) {
@@ -1730,6 +1747,21 @@ window.addEventListener("keydown", (event) => {
 
 backBtn.addEventListener("click", () => {
   playUiClickSound();
+  showInputScreen();
+});
+
+resultScreen.addEventListener("click", (event) => {
+  if (!executionComplete) {
+    return;
+  }
+  if (event.target.closest("button")) {
+    return;
+  }
+  playUiClickSound();
+  executionComplete = false;
+  if (statusText) {
+    statusText.classList.remove("click-hint-pulse");
+  }
   showInputScreen();
 });
 

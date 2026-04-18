@@ -2204,6 +2204,15 @@ textarea:focus {
   text-align: center;
 }
 
+.result-status.click-hint-pulse {
+  animation: clickHintPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes clickHintPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
 .result-progress-box {
   width: min(340px, 78%);
   margin: 12px auto 8px;
