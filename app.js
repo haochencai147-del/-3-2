@@ -1,19 +1,16 @@
 import pretext from "pretext";
 
-function resolveApiBaseUrl() {
-  const pageProtocol = window.location.protocol === "https:" ? "https:" : "http:";
-  const pageHost = window.location.hostname || "localhost";
-  const pagePort = String(window.location.port || "");
-
-  if (pagePort === "8787") {
-    return `${pageProtocol}//${pageHost}:8787`;
+function resolveApiEndpoint() {
+  const host = String(window.location.hostname || "").toLowerCase();
+  const isLocal = host === "localhost" || host === "127.0.0.1";
+  if (isLocal) {
+    return "http://localhost:8787/api/three-steps";
   }
-
-  return `http://${pageHost}:8787`;
+  return "/api/three-steps";
 }
 
 const API_CONFIG = {
-  threeStepsEndpoint: `${resolveApiBaseUrl()}/api/three-steps`
+  threeStepsEndpoint: resolveApiEndpoint()
 };
 
 const startScreen = document.getElementById("startScreen");
@@ -283,7 +280,7 @@ function normalizeClientErrorMessage(error) {
   const lowered = raw.toLowerCase();
 
   if (!raw || lowered.includes("failed to fetch") || lowered.includes("networkerror")) {
-    return "Connection failed: please make sure the backend is running (npm run server).";
+    return "Connection failed: please make sure the backend is running (npm start).";
   }
 
   if (lowered.includes("server is missing api credentials")) {

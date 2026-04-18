@@ -2,10 +2,12 @@
   "name": "mean-machine-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Disguised ChatGPT interface showing expression collapse by statistical averaging.",
   "scripts": {
-    "dev": "concurrently \"npm:server\" \"npm:start\"",
-    "start": "vite --host 0.0.0.0 --port 3000",
+    "dev": "concurrently \"npm:start\" \"vite\"",
+    "build": "vite build",
+    "start": "node server.js",
     "server": "node server.js"
   },
   "devDependencies": {
