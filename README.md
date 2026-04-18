@@ -1,0 +1,2 @@
+# Standardization Complete
+This is a web-based tool that rewrites user input through multiple stages, using a frontend interface (Vite) and a backend server (Express) to process and return results.
