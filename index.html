@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expression Lab | Text to Structure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260418-55" />
+  </head>
+  <body>
+    <!-- Global atmosphere layers (background glow + CRT grain) -->
+    <div class="ambient-bg"></div>
+    <div class="grain"></div>
+
+    <main class="app">
+      <!-- Screen 1: entry/boot experience -->
+      <section id="startScreen" class="screen active">
+        <article class="card start-card">
+          <div class="crt-viewport start-viewport">
+            <p class="panel-id">LAB NODE 03 · BOOT SEQUENCE</p>
+            <p class="chip">SYSTEM ONLINE</p>
+            <h1 class="start-title">Standardization Complete</h1>
+            <div id="startPretextOutput" class="start-subtitle" aria-live="polite"></div>
+            <div class="start-progress">
+              <span class="start-progress-label">Initializing Console..</span>
+              <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+              </div>
+            </div>
+            <button id="enterBtn" class="btn primary start-btn" type="button">ENTER TERMINAL</button>
+          </div>
+        </article>
+      </section>
+
+      <!-- Screen 2: user input + live rewrite preview -->
+      <section id="inputScreen" class="screen">
+        <article class="card">
+          <div class="crt-viewport">
+            <p class="panel-id">LAB NODE 03 · INPUT CHANNEL</p>
+            <p class="chip">PIXEL PROTOCOL</p>
+            <div class="result-title-wrapper">
+              <h1 class="colorful-title">
+                <span class="color-char" style="--char-color:#4285F4;">S</span>
+                <span class="color-char" style="--char-color:#EA4335;">T</span>
+                <span class="color-char" style="--char-color:#FBBC04;">A</span>
+                <span class="color-char" style="--char-color:#34A853;">N</span>
+                <span class="color-char" style="--char-color:#EA4335;">D</span>
+                <span class="color-char" style="--char-color:#4285F4;">A</span>
+                <span class="color-char" style="--char-color:#34A853;">R</span>
+                <span class="color-char" style="--char-color:#FBBC04;">D</span>
+                <span class="color-char" style="--char-color:#EA4335;">I</span>
+                <span class="color-char" style="--char-color:#4285F4;">Z</span>
+                <span class="color-char" style="--char-color:#34A853;">A</span>
+                <span class="color-char" style="--char-color:#FBBC04;">T</span>
+                <span class="color-char" style="--char-color:#EA4335;">I</span>
+                <span class="color-char" style="--char-color:#4285F4;">O</span>
+                <span class="color-char" style="--char-color:#34A853;">N</span>
+                <span class="title-gap" aria-hidden="true"></span>
+                <span class="color-char" style="--char-color:#FBBC04;">C</span>
+                <span class="color-char" style="--char-color:#EA4335;">O</span>
+                <span class="color-char" style="--char-color:#4285F4;">M</span>
+                <span class="color-char" style="--char-color:#34A853;">P</span>
+                <span class="color-char" style="--char-color:#FBBC04;">L</span>
+                <span class="color-char" style="--char-color:#EA4335;">E</span>
+                <span class="color-char" style="--char-color:#4285F4;">T</span>
+                <span class="color-char" style="--char-color:#34A853;">E</span>
+              </h1>
+            </div>
+            <label>
+              SOURCE TEXT
+              <div class="merged-text-box">
+                <textarea id="userInput" rows="6" required></textarea>
+                <div id="liveRewriteOutput" class="live-rewrite-output" aria-live="polite"></div>
+              </div>
+            </label>
+            <button id="generateBtn" class="btn primary colorful-btn" type="button">
+              <span class="color-char" style="--char-color:#EA4335; font-size:inherit; animation-delay:0s;">S</span><!--
+              --><span class="color-char" style="--char-color:#4285F4; font-size:inherit; animation-delay:0.15s;">U</span><!--
+              --><span class="color-char" style="--char-color:#FBBC04; font-size:inherit; animation-delay:0.3s;">B</span><!--
+              --><span class="color-char" style="--char-color:#34A853; font-size:inherit; animation-delay:0.45s;">M</span><!--
+              --><span class="color-char" style="--char-color:#4285F4; font-size:inherit; animation-delay:0.6s;">I</span><!--
+              --><span class="color-char" style="--char-color:#EA4335; font-size:inherit; animation-delay:0.75s;">T</span><!--
+              --><span style="color:rgba(126,255,159,0.5); font-size:inherit;">&nbsp;+&nbsp;</span><!--
+              --><span class="color-char" style="--char-color:#FBBC04; font-size:inherit; animation-delay:0.9s;">G</span><!--
+              --><span class="color-char" style="--char-color:#34A853; font-size:inherit; animation-delay:1.05s;">E</span><!--
+              --><span class="color-char" style="--char-color:#EA4335; font-size:inherit; animation-delay:1.2s;">N</span>
+            </button>
+            <button id="soundTestBtn" class="btn ghost" type="button">TEST SOUND</button>
+            <button id="ambientToggleBtn" class="btn ghost" type="button">AMBIENT: OFF</button>
+            <div class="input-progress-box" id="inputProgressBox">
+              <span class="input-progress-label" id="inputProgressLabel">Awaiting Input..</span>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" id="inputProgressFill"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Screen 3: execution visualization and final output -->
+      <section id="resultScreen" class="screen">
+        <article class="card">
+          <div class="crt-viewport">
+            <p class="panel-id">LAB NODE 03 · OUTPUT CHAMBER</p>
+            <div class="result-title-wrapper">
+              <h2 class="colorful-title">
+                <span class="color-char" style="--char-color:#4285F4;">S</span>
+                <span class="color-char" style="--char-color:#EA4335;">T</span>
+                <span class="color-char" style="--char-color:#FBBC04;">A</span>
+                <span class="color-char" style="--char-color:#34A853;">N</span>
+                <span class="color-char" style="--char-color:#EA4335;">D</span>
+                <span class="color-char" style="--char-color:#4285F4;">A</span>
+                <span class="color-char" style="--char-color:#34A853;">R</span>
+                <span class="color-char" style="--char-color:#FBBC04;">D</span>
+                <span class="color-char" style="--char-color:#EA4335;">I</span>
+                <span class="color-char" style="--char-color:#4285F4;">Z</span>
+                <span class="color-char" style="--char-color:#34A853;">A</span>
+                <span class="color-char" style="--char-color:#FBBC04;">T</span>
+                <span class="color-char" style="--char-color:#EA4335;">I</span>
+                <span class="color-char" style="--char-color:#4285F4;">O</span>
+                <span class="color-char" style="--char-color:#34A853;">N</span>
+                <span class="title-gap" aria-hidden="true"></span>
+                <span class="color-char" style="--char-color:#FBBC04;">C</span>
+                <span class="color-char" style="--char-color:#EA4335;">O</span>
+                <span class="color-char" style="--char-color:#4285F4;">M</span>
+                <span class="color-char" style="--char-color:#34A853;">P</span>
+                <span class="color-char" style="--char-color:#FBBC04;">L</span>
+                <span class="color-char" style="--char-color:#EA4335;">E</span>
+                <span class="color-char" style="--char-color:#4285F4;">T</span>
+                <span class="color-char" style="--char-color:#34A853;">E</span>
+              </h2>
+              <div class="subtitle-badges">
+                <span class="badge-text">EXPRESSION 2024</span>
+                <span class="badge-text-accent">RENDER</span>
+              </div>
+            </div>
+            <p id="statusText" class="hint result-status">Saving Search Data..</p>
+            <div class="image-wrap">
+              <div id="resultOutput" class="result-output" aria-live="polite"></div>
+            </div>
+            <div class="result-progress-box" id="resultProgressBox">
+              <div id="loadingProgress" class="progress-bar">
+                <div class="progress-bar-fill"></div>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="regenerateBtn" class="btn ghost" type="button">REGENERATE</button>
+              <button id="backBtn" class="btn primary" type="button">BACK TO INPUT</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- Main frontend logic: API calls, timeline animation, audio engine -->
+    <script type="module" src="app.js?v=20260418e"></script>
+  </body>
+</html>
