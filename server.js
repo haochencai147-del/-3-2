@@ -1,9 +1,11 @@
+dotenv.config({ override: true });
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const OpenAI = require("openai");
+const path = require("path");
+const { fileURLToPath } = require('url');
 
-dotenv.config({ override: true });
 
 // Express app setup and runtime configuration.
 const app = express();
@@ -12,6 +14,17 @@ const rewriteModel = process.env.REWRITE_MODEL || "gpt-4.1-mini";
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
+
+// Compatible with __dirname in ES modules
+let __dirname = "";
+try {
+  __dirname = path.dirname(__filename);
+} catch (e) {
+  __dirname = path.resolve();
+}
+
+// Serve frontend static files (e.g., Vite/dist build output)
+app.use(express.static(path.join(__dirname, "dist")));
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -309,6 +322,8 @@ async function generateThreeSteps(userInput) {
 }
 
 // HTTP routes: main rewrite API + health/debug helpers.
+
+// Your API
 app.post("/api/three-steps", async (req, res) => {
   // Main endpoint used by the frontend rewrite workflow.
   try {
@@ -362,6 +377,12 @@ app.get("/api/debug/config", (_req, res) => {
     rewriteModel,
     hasApiKey: Boolean(apiKey)
   });
+});
+
+
+// All frontend routes return index.html (for SPA routing)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(port, () => {
